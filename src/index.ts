@@ -62,9 +62,9 @@ export function main(): void {
       totalFindings += result.findings.length;
       
       if (result.findings.length === 0) {
-        console.log('✅ No dangerouslySetInnerHTML usage found!');
+        console.log('No dangerouslySetInnerHTML usage found!');
       } else {
-        console.log(`⚠️  Found ${result.findings.length} instances of dangerouslySetInnerHTML:\n`);
+        console.log(`Found ${result.findings.length} instances of dangerouslySetInnerHTML:\n`);
         
         result.findings.forEach((finding, index) => {
           console.log(`${index + 1}. ${path.relative(codebasePath, finding.filePath)}:${finding.line}:${finding.column}`);
@@ -84,12 +84,12 @@ export function main(): void {
       totalFindings += result.findings.length;
       
       if (result.findings.length === 0) {
-        console.log('✅ No NoSQL injection vulnerabilities found!');
+        console.log('No NoSQL injection vulnerabilities found!');
       } else {
-        console.log(`🔴 Found ${result.findings.length} NoSQL injection vulnerabilities:\n`);
+        console.log(`Found ${result.findings.length} NoSQL injection vulnerabilities:\n`);
         
         result.findings.forEach((finding, index) => {
-          const severityIcon = finding.severity === 'critical' ? '🚨' : finding.severity === 'high' ? '⚠️' : '⚡';
+          const severityIcon = finding.severity === 'critical' ? 'CRITICAL' : finding.severity === 'high' ? 'HIGH' : 'MEDIUM';
           console.log(`${index + 1}. ${severityIcon} ${finding.severity?.toUpperCase()} - ${path.relative(codebasePath, finding.filePath)}:${finding.line}:${finding.column}`);
           console.log(`   ${finding.message}`);
           console.log(`   Code: ${finding.code}\n`);
@@ -107,9 +107,9 @@ export function main(): void {
       totalFindings += result.findings.length;
       
       if (result.findings.length === 0) {
-        console.log('✅ No JWT decode without verify issues found!');
+        console.log('No JWT decode without verify issues found!');
       } else {
-        console.log(`⚠️  Found ${result.findings.length} JWT decode without verify issues:\n`);
+        console.log(`Found ${result.findings.length} JWT decode without verify issues:\n`);
         
         result.findings.forEach((finding, index) => {
           console.log(`${index + 1}. ${path.relative(codebasePath, finding.filePath)}:${finding.line}:${finding.column}`);
