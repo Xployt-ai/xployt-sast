@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { DangerousInnerHTMLChecker } from './scans/dangerous-html-checker';
 import { JwtDecodeChecker } from './scans/jwt-decode-checker';
 import { NoSQLInjectionChecker } from './scans/nosql-injection-checker';
+import { CodeInjectionChecker } from './scans/code-injection-checker';
 import { CheckerResult } from './types';
 
 export * from './checkers';
@@ -34,12 +35,21 @@ export function checkNoSQLInjection(codebasePath: string): CheckerResult {
   return checker.check();
 }
 
+export function checkCodeInjection(codebasePath: string): CheckerResult {
+  if (!fs.existsSync(codebasePath)) {
+    throw new Error(`Codebase path does not exist: ${codebasePath}`);
+  }
+
+  const checker = new CodeInjectionChecker({ codebasePath });
+  return checker.check();
+}
+
 export function main(): void {
   const args = process.argv.slice(2);
   
   if (args.length === 0) {
     console.error('Usage: npm run dev <codebase-path> [checker]');
-    console.error('Available checkers: dangerous-html, jwt-decode, nosql-injection, all');
+    console.error('Available checkers: dangerous-html, jwt-decode, nosql-injection, code-injection, all');
     process.exit(1);
   }
 
@@ -117,6 +127,30 @@ export function main(): void {
           console.log(`   Code: ${finding.code}\n`);
         });
       }
+      console.log('');
+    }
+
+    if (checkerType === 'code-injection' || checkerType === 'all') {
+      console.log('Checking for code injection vulnerabilities...\n');
+      
+      const result = checkCodeInjection(codebasePath);
+      totalFiles = result.totalFiles;
+      filesWithFindings = Math.max(filesWithFindings, result.filesWithFindings);
+      totalFindings += result.findings.length;
+      
+      if (result.findings.length === 0) {
+        console.log('No code injection vulnerabilities found!');
+      } else {
+        console.log(`Found ${result.findings.length} code injection vulnerabilities:\n`);
+        
+        result.findings.forEach((finding, index) => {
+          const severityIcon = finding.severity === 'critical' ? 'CRITICAL' : finding.severity === 'high' ? 'HIGH' : 'MEDIUM';
+          console.log(`${index + 1}. ${severityIcon} ${finding.severity?.toUpperCase()} - ${path.relative(codebasePath, finding.filePath)}:${finding.line}:${finding.column}`);
+          console.log(`   ${finding.message}`);
+          console.log(`   Code: ${finding.code}\n`);
+        });
+      }
+      console.log('');
     }
     
     console.log(`Summary:`);
