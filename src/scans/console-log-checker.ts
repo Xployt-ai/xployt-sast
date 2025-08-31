@@ -1,6 +1,6 @@
 import { Node, CallExpression } from 'ts-morph';
 import { BaseChecker } from './base-checker';
-import { SecurityFinding, BaseCheckerOptions } from './types';
+import { SecurityFinding, BaseCheckerOptions } from '../types';
 
 export class ConsoleLogChecker extends BaseChecker {
   constructor(options: BaseCheckerOptions) {

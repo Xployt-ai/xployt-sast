@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { DangerousInnerHTMLChecker } from './dangerous-html-checker';
+import { DangerousInnerHTMLChecker } from './scans/dangerous-html-checker';
+import { JwtDecodeChecker } from './scans/jwt-decode-checker';
 import { CheckerResult } from './types';
 
 export * from './checkers';
@@ -11,6 +12,15 @@ export function checkDangerousInnerHTML(codebasePath: string): CheckerResult {
   }
 
   const checker = new DangerousInnerHTMLChecker({ codebasePath });
+  return checker.check();
+}
+
+export function checkJwtDecodeWithoutVerify(codebasePath: string): CheckerResult {
+  if (!fs.existsSync(codebasePath)) {
+    throw new Error(`Codebase path does not exist: ${codebasePath}`);
+  }
+
+  const checker = new JwtDecodeChecker({ codebasePath });
   return checker.check();
 }
 

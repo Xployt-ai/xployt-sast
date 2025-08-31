@@ -1,6 +1,6 @@
 import { Node, JsxAttribute } from 'ts-morph';
 import { BaseChecker } from './base-checker';
-import { SecurityFinding, BaseCheckerOptions } from './types';
+import { SecurityFinding, BaseCheckerOptions } from '../types';
 
 export class DangerousInnerHTMLChecker extends BaseChecker {
   constructor(options: BaseCheckerOptions) {

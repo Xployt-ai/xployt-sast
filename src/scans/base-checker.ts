@@ -1,5 +1,5 @@
-import { TypeScriptServer } from './ts-server';
-import { SecurityFinding, CheckerResult, BaseCheckerOptions } from './types';
+import { TypeScriptServer } from '../ts-server';
+import { SecurityFinding, CheckerResult, BaseCheckerOptions } from '../types';
 
 export abstract class BaseChecker {
   protected tsServer: TypeScriptServer;

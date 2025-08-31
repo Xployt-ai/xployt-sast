@@ -1,7 +1,7 @@
 # SAST Architecture
 
 ## Overview
-This SAST tool is now built with a modular architecture that makes it easy to add new security checkers.
+This SAST tool is built with a modular architecture that makes it easy to add new security checkers. All scanners are organized in the `scans/` directory with comprehensive unit tests.
 
 ## Core Components
 
@@ -17,7 +17,7 @@ Handles TypeScript project setup and file management:
 - Adds source files to the project
 - Provides access to the ts-morph Project instance
 
-### `base-checker.ts`
+### `scans/base-checker.ts`
 Abstract base class for all security checkers:
 - Manages TypeScript server initialization
 - Provides common checking workflow
@@ -25,20 +25,27 @@ Abstract base class for all security checkers:
 
 ## Available Checkers
 
-### `dangerous-html-checker.ts`
+### `scans/dangerous-html-checker.ts`
 Detects usage of `dangerouslySetInnerHTML` which can lead to XSS vulnerabilities.
+**Strategy**: Traverses JSX attributes and flags any named `dangerouslySetInnerHTML`.
 
-### `console-log-checker.ts`
+### `scans/console-log-checker.ts`
 Finds `console.log` statements that should be removed in production.
+**Strategy**: Identifies property access expressions where object is `console` and property is `log`.
+
+### `scans/jwt-decode-checker.ts`
+Detects JWT decode operations without corresponding verification in the same function scope.
+**Strategy**: Finds `jwt.decode` calls, locates containing function, then checks if same token is verified with `jwt.verify` within that scope.
 
 ## Adding New Checkers
 
 To add a new checker:
 
-1. Create a new file extending `BaseChecker`
+1. Create a new file in `scans/` extending `BaseChecker`
 2. Implement the `checkFile(sourceFile)` method
 3. Use `this.addFinding()` to report issues
 4. Export from `checkers/index.ts`
+5. Write comprehensive unit tests in `__tests__/scans/`
 
 Example:
 ```typescript
@@ -49,11 +56,29 @@ export class MyChecker extends BaseChecker {
 }
 ```
 
+## Testing
+
+The project includes comprehensive unit tests for all checkers:
+
+- Run tests: `npm test`
+- Run with coverage: `npm run test:coverage`
+- Watch mode: `npm run test:watch`
+
+All checkers have 90%+ test coverage with tests for:
+- Positive cases (finding security issues)
+- Negative cases (not flagging safe code)
+- Edge cases and error handling
+- File path and line number accuracy
+
 ## Usage
 
 ```typescript
-import { DangerousInnerHTMLChecker, ConsoleLogChecker } from './checkers';
+import { DangerousInnerHTMLChecker, ConsoleLogChecker, JwtDecodeChecker } from './checkers';
 
 const checker = new DangerousInnerHTMLChecker({ codebasePath: './src' });
 const result = checker.check();
+
+// Or use the convenience functions
+import { checkDangerousInnerHTML, checkJwtDecodeWithoutVerify } from './index';
+const jwtResult = checkJwtDecodeWithoutVerify('./src');
 ```
