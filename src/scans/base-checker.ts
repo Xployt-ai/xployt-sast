@@ -5,10 +5,12 @@ export abstract class BaseChecker {
   protected tsServer: TypeScriptServer;
   protected findings: SecurityFinding[] = [];
   protected options: BaseCheckerOptions;
+  protected verbose: boolean;
 
   constructor(options: BaseCheckerOptions) {
     this.options = options;
     this.tsServer = new TypeScriptServer(options.codebasePath);
+    this.verbose = process.env.XPLOYT_SAST_VERBOSE === '1' || process.env.XPLOYT_SAST_VERBOSE === 'true';
   }
 
   public check(): CheckerResult {
@@ -17,7 +19,17 @@ export abstract class BaseChecker {
     const filesWithFindings = new Set<string>();
 
     for (const sourceFile of sourceFiles) {
+      const startFindings = this.findings.length;
+      const start = Date.now();
+      if (this.verbose) {
+        console.log(`Scanning: ${sourceFile.getFilePath()}`);
+      }
       this.checkFile(sourceFile);
+      const end = Date.now();
+      if (this.verbose) {
+        const delta = this.findings.length - startFindings;
+        console.log(`Scanned: ${sourceFile.getFilePath()} (+${delta} findings) in ${end - start}ms`);
+      }
     }
 
     this.findings.forEach(finding => filesWithFindings.add(finding.filePath));

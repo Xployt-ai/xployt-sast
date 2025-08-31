@@ -25,15 +25,27 @@ export class TypeScriptServer {
   }
 
   private addSourceFiles(codebasePath: string): void {
-    const extensions = ['**/*.tsx', '**/*.jsx', '**/*.ts', '**/*.js'];
-    
-    for (const extension of extensions) {
-      const pattern = path.join(codebasePath, extension);
-      try {
-        this.project.addSourceFilesAtPaths(pattern);
-      } catch (error) {
-        // Continue with other patterns if one fails
-      }
+    const includePatterns = [
+      path.join(codebasePath, '**/*.tsx'),
+      path.join(codebasePath, '**/*.jsx'),
+      path.join(codebasePath, '**/*.ts'),
+      path.join(codebasePath, '**/*.js'),
+    ];
+
+    const excludePatterns = [
+      '!' + path.join(codebasePath, '**/node_modules/**'),
+      '!' + path.join(codebasePath, '**/dist/**'),
+      '!' + path.join(codebasePath, '**/coverage/**'),
+      '!' + path.join(codebasePath, '**/.git/**'),
+      '!' + path.join(codebasePath, '**/build/**'),
+      '!' + path.join(codebasePath, '**/.next/**'),
+      '!' + path.join(codebasePath, '**/out/**'),
+    ];
+
+    try {
+      this.project.addSourceFilesAtPaths([...includePatterns, ...excludePatterns]);
+    } catch (error) {
+      // Continue with direct add if glob pattern fails
     }
     
     // If no files were added through patterns, try to add files directly
@@ -51,7 +63,10 @@ export class TypeScriptServer {
       for (const entry of entries) {
         const fullPath = path.join(dir, entry.name);
         
-        if (entry.isDirectory() && entry.name !== 'node_modules') {
+        if (
+          entry.isDirectory() &&
+          !['node_modules', 'dist', 'coverage', '.git', 'build', '.next', 'out'].includes(entry.name)
+        ) {
           addFilesRecursively(fullPath);
         } else if (entry.isFile()) {
           const ext = path.extname(entry.name);
