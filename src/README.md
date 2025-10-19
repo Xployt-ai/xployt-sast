@@ -82,3 +82,16 @@ const result = checker.check();
 import { checkDangerousInnerHTML, checkJwtDecodeWithoutVerify } from './index';
 const jwtResult = checkJwtDecodeWithoutVerify('./src');
 ```
+
+# Docker
+
+```
+docker build -t xployt-sast-scanner .
+```
+
+```
+docker run 
+-p 8001:8001
+-v /Users/lakshith/Developer/xployt-ai/xployt-main-server/local_storage:/app/local_storage \
+ xployt-sast-scanner
+```
