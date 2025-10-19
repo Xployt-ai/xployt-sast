@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+README.md
+notes/
+scripts/
+src/__tests__/
+jest.config.js
+*.test.ts
+*.spec.ts
